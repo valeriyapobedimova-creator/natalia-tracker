@@ -1,0 +1,1728 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#fff8fb" />
+  <title>Занятия с Натальей Попович — трекер</title>
+  <style>
+    :root{
+      --bg:#fff8fb;
+      --card:#ffffff;
+      --text:#2f2730;
+      --muted:#8a7c86;
+      --pink:#f28ab2;
+      --pink-dark:#d85f92;
+      --pink-soft:#ffe6f0;
+      --line:#f3dbe5;
+      --shadow:0 10px 30px rgba(127, 67, 95, .09);
+      --radius:22px;
+
+      --mood-5:#43a86b;
+      --mood-4:#83b95d;
+      --mood-3:#e59b35;
+      --mood-2:#df775f;
+      --mood-1:#d65353;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top right, rgba(242,138,178,.14), transparent 30%),
+        var(--bg);
+      color:var(--text);
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    body.modal-open{overflow:hidden}
+
+    button, textarea{font:inherit}
+
+    .app{
+      width:min(100%, 560px);
+      margin:0 auto;
+      padding:18px 14px 42px;
+    }
+
+    .hero{
+      position:sticky;
+      top:0;
+      z-index:10;
+      background:linear-gradient(to bottom, rgba(255,248,251,.97) 78%, rgba(255,248,251,0));
+      backdrop-filter:blur(10px);
+      padding:calc(10px + env(safe-area-inset-top)) 2px 18px;
+      margin-bottom:4px;
+    }
+
+    h1{
+      margin:0 0 8px;
+      font-size:clamp(24px, 7vw, 34px);
+      line-height:1.08;
+      letter-spacing:-.03em;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.45;
+    }
+
+    .progress{
+      margin-top:14px;
+      background:rgba(255,255,255,.78);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:12px;
+      box-shadow:0 6px 20px rgba(127, 67, 95, .06);
+    }
+
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(4, minmax(0,1fr));
+      gap:7px;
+      margin-bottom:10px;
+    }
+
+    .stat{
+      min-width:0;
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:10px 7px;
+      text-align:center;
+    }
+
+    .stat-value{
+      display:block;
+      font-size:clamp(17px, 5.3vw, 23px);
+      line-height:1.05;
+      font-weight:850;
+      color:var(--pink-dark);
+      letter-spacing:-.03em;
+      white-space:nowrap;
+    }
+
+    .stat-label{
+      display:block;
+      margin-top:5px;
+      color:var(--muted);
+      font-size:9px;
+      line-height:1.15;
+    }
+
+    @media (max-width:390px){
+      .stats{gap:5px}
+      .stat{padding:9px 4px}
+      .stat-value{font-size:16px}
+      .stat-label{font-size:8px}
+    }
+
+    .sync-status{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      margin-top:9px;
+      color:var(--muted);
+      font-size:10px;
+      line-height:1.2;
+    }
+
+    .sync-dot{
+      width:7px;
+      height:7px;
+      flex:0 0 auto;
+      border-radius:50%;
+      background:#d3c6cc;
+    }
+
+    .sync-status.ok .sync-dot{background:#43a86b}
+    .sync-status.busy .sync-dot{background:#e59b35}
+    .sync-status.error .sync-dot{background:#d65353}
+
+    .progress-track{
+      height:9px;
+      background:#f7e8ee;
+      border-radius:999px;
+      overflow:hidden;
+    }
+
+    .progress-bar{
+      width:0%;
+      height:100%;
+      background:linear-gradient(90deg, var(--pink), #ffb3cf);
+      border-radius:inherit;
+      transition:width .25s ease;
+    }
+
+    .months{
+      display:grid;
+      gap:16px;
+    }
+
+    .month{
+      background:var(--card);
+      border:1px solid rgba(243,219,229,.9);
+      border-radius:var(--radius);
+      padding:16px 12px 14px;
+      box-shadow:var(--shadow);
+    }
+
+    .month-head{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:12px;
+      margin:0 4px 14px;
+    }
+
+    .month-title{
+      margin:0;
+      font-size:22px;
+      letter-spacing:-.02em;
+      text-transform:capitalize;
+    }
+
+    .month-count{
+      color:var(--muted);
+      font-size:12px;
+      white-space:nowrap;
+    }
+
+    .weekdays,
+    .days{
+      display:grid;
+      grid-template-columns:repeat(7, minmax(0,1fr));
+      gap:6px;
+    }
+
+    .weekdays{margin-bottom:7px}
+
+    .weekday{
+      text-align:center;
+      font-size:11px;
+      color:var(--muted);
+      font-weight:700;
+      padding:2px 0;
+      text-transform:uppercase;
+      letter-spacing:.03em;
+    }
+
+    .day-cell{
+      position:relative;
+      aspect-ratio:1 / 1;
+      min-width:0;
+      border-radius:14px;
+      background:#fff;
+      transition:background .15s ease, box-shadow .15s ease;
+    }
+
+    .day-cell:hover{background:#fff6fa}
+
+    .day-cell.done{
+      background:var(--pink-soft);
+      box-shadow:inset 0 0 0 1px rgba(216,95,146,.13);
+    }
+
+    .day-cell.today{
+      box-shadow:inset 0 0 0 2px rgba(242,138,178,.5);
+    }
+
+    .day-cell.today.done{
+      box-shadow:
+        inset 0 0 0 2px rgba(242,138,178,.5),
+        inset 0 0 0 4px rgba(255,255,255,.5);
+    }
+
+    .day-cell.empty{
+      visibility:hidden;
+      pointer-events:none;
+    }
+
+    .day-main{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      border:0;
+      border-radius:14px;
+      background:transparent;
+      color:var(--text);
+      cursor:pointer;
+      font-weight:700;
+      padding:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      touch-action:manipulation;
+    }
+
+    .day-number{
+      min-width:16px;
+      text-align:center;
+      font-size:15px;
+      line-height:1;
+      font-weight:800;
+      pointer-events:none;
+    }
+
+    .day-cell.done .day-main{color:var(--pink-dark)}
+    .day-main:active{transform:scale(.94)}
+
+    .check{
+      display:none;
+      position:absolute;
+      right:2px;
+      bottom:-1px;
+      z-index:2;
+      color:var(--pink-dark);
+      font-size:clamp(13px, 4.2vw, 19px);
+      line-height:1;
+      font-weight:900;
+      transform:rotate(-8deg);
+      pointer-events:none;
+    }
+
+    .day-cell.done .check{
+      display:block;
+      animation:pop .18s ease-out;
+    }
+
+    .note-btn{
+      position:absolute;
+      left:0;
+      bottom:0;
+      z-index:3;
+      width:24px;
+      height:24px;
+      border:0;
+      background:transparent;
+      color:transparent;
+      font-size:0;
+      cursor:pointer;
+      padding:0;
+      touch-action:manipulation;
+    }
+
+    .note-btn::after{
+      content:"";
+      position:absolute;
+      left:4px;
+      bottom:4px;
+      width:7px;
+      height:7px;
+      border-radius:50%;
+      background:#d8c5ce;
+      box-shadow:0 0 0 2px rgba(255,255,255,.9);
+      transition:transform .12s ease, background .15s ease;
+    }
+
+    .note-btn:active::after{
+      transform:scale(.78);
+    }
+
+    .day-cell.has-entry .note-btn::after{
+      background:var(--pink);
+      box-shadow:
+        0 0 0 2px rgba(255,255,255,.95),
+        0 2px 7px rgba(216,95,146,.24);
+    }
+
+    .charts{
+      margin-top:18px;
+      display:grid;
+      gap:14px;
+    }
+
+    .charts-title{
+      margin:4px 4px 0;
+      font-size:22px;
+      letter-spacing:-.02em;
+    }
+
+    .charts-subtitle{
+      margin:-6px 4px 0;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.45;
+    }
+
+    .chart-card{
+      background:var(--card);
+      border:1px solid rgba(243,219,229,.9);
+      border-radius:var(--radius);
+      padding:15px 12px 12px;
+      box-shadow:var(--shadow);
+    }
+
+    .chart-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin:0 3px 8px;
+    }
+
+    .chart-head h3{
+      margin:0;
+      font-size:16px;
+    }
+
+    .chart-average{
+      color:var(--muted);
+      font-size:11px;
+      white-space:nowrap;
+    }
+
+    .chart-wrap{
+      position:relative;
+      height:210px;
+      width:100%;
+    }
+
+    canvas{
+      display:block;
+      width:100%;
+      height:100%;
+    }
+
+    .chart-empty{
+      position:absolute;
+      inset:40% 22px auto;
+      text-align:center;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.4;
+      pointer-events:none;
+    }
+
+    .footer-note{
+      color:var(--muted);
+      text-align:center;
+      font-size:12px;
+      line-height:1.5;
+      margin:18px 8px 0;
+    }
+
+    .reset-wrap{
+      display:flex;
+      justify-content:center;
+      margin-top:14px;
+    }
+
+    .reset{
+      border:1px solid var(--line);
+      background:white;
+      color:var(--muted);
+      border-radius:999px;
+      padding:10px 14px;
+      font-size:12px;
+      cursor:pointer;
+    }
+
+    /* Modal / mobile bottom sheet */
+    .modal{
+      position:fixed;
+      inset:0;
+      z-index:100;
+      display:none;
+      align-items:flex-end;
+      justify-content:center;
+      background:rgba(54,38,47,.38);
+      padding:18px 12px max(12px, env(safe-area-inset-bottom));
+    }
+
+    .modal.open{display:flex}
+
+    .sheet{
+      width:min(100%, 560px);
+      max-height:min(86vh, 760px);
+      overflow:auto;
+      background:#fff;
+      border-radius:26px 26px 20px 20px;
+      box-shadow:0 24px 70px rgba(66,39,54,.24);
+      padding:10px 16px 18px;
+      animation:sheetIn .22s ease-out;
+    }
+
+    .sheet-grab{
+      width:44px;
+      height:5px;
+      border-radius:999px;
+      background:#eadce2;
+      margin:0 auto 10px;
+    }
+
+    .sheet-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    .sheet-head h2{
+      margin:0;
+      font-size:21px;
+      letter-spacing:-.02em;
+    }
+
+    .sheet-date{
+      margin:4px 0 0;
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    .close-btn{
+      flex:0 0 auto;
+      width:38px;
+      height:38px;
+      border:0;
+      border-radius:50%;
+      background:#f7eef2;
+      color:#7f6e77;
+      font-size:22px;
+      cursor:pointer;
+    }
+
+    .field-label{
+      display:block;
+      margin:16px 0 7px;
+      font-size:13px;
+      font-weight:800;
+    }
+
+    textarea{
+      width:100%;
+      min-height:104px;
+      resize:vertical;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:#fffafb;
+      color:var(--text);
+      padding:12px 13px;
+      outline:none;
+      line-height:1.45;
+    }
+
+    textarea:focus{
+      border-color:#efb2c9;
+      box-shadow:0 0 0 3px rgba(242,138,178,.12);
+    }
+
+    .weight-input-wrap{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-top:7px;
+    }
+
+    .weight-input{
+      width:100%;
+      min-width:0;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:#fffafb;
+      color:var(--text);
+      padding:12px 13px;
+      outline:none;
+      font-size:16px;
+    }
+
+    .weight-input:focus{
+      border-color:#efb2c9;
+      box-shadow:0 0 0 3px rgba(242,138,178,.12);
+    }
+
+    .weight-unit{
+      flex:0 0 auto;
+      color:var(--muted);
+      font-size:13px;
+      font-weight:800;
+    }
+
+    .input-hint{
+      margin:6px 2px 0;
+      color:var(--muted);
+      font-size:10px;
+      line-height:1.35;
+    }
+
+    .pain-row{
+      display:grid;
+      grid-template-columns:repeat(5, minmax(0,1fr));
+      gap:7px;
+    }
+
+    .pain-btn{
+      min-width:0;
+      min-height:40px;
+      border:1px solid #f0e1e7;
+      background:#fff;
+      border-radius:12px;
+      color:#6f6068;
+      font-weight:850;
+      cursor:pointer;
+      padding:6px 2px;
+    }
+
+    .pain-btn.selected{
+      background:var(--pink-soft);
+      color:var(--pink-dark);
+      border-color:var(--pink);
+      box-shadow:0 0 0 2px rgba(242,138,178,.12);
+    }
+
+    .pain-btn:active{transform:scale(.95)}
+
+    .mood-section{
+      margin-top:16px;
+      padding-top:14px;
+      border-top:1px solid #f6e7ed;
+    }
+
+    .mood-title{
+      margin:0 0 9px;
+      font-size:13px;
+      font-weight:800;
+    }
+
+    .mood-row{
+      display:grid;
+      grid-template-columns:repeat(5, minmax(0,1fr));
+      gap:7px;
+    }
+
+    .mood-btn{
+      min-width:0;
+      border:1px solid #f0e1e7;
+      background:#fff;
+      border-radius:15px;
+      padding:7px 3px 6px;
+      cursor:pointer;
+      transition:transform .1s ease, border-color .15s ease, box-shadow .15s ease;
+    }
+
+    .mood-btn:active{transform:scale(.94)}
+
+    .mood-btn.selected{
+      border-color:var(--mood-color);
+      box-shadow:0 0 0 3px color-mix(in srgb, var(--mood-color) 16%, transparent);
+    }
+
+    .mood-face{
+      width:38px;
+      height:38px;
+      display:block;
+      margin:0 auto;
+    }
+
+    .mood-face svg{
+      width:100%;
+      height:100%;
+      display:block;
+    }
+
+    .mood-name{
+      display:block;
+      margin-top:5px;
+      color:#6f6068;
+      font-size:9px;
+      line-height:1.1;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+
+    .sheet-actions{
+      position:sticky;
+      bottom:-18px;
+      display:grid;
+      grid-template-columns:1fr 1.5fr;
+      gap:8px;
+      margin-top:18px;
+      padding:12px 0 calc(2px + env(safe-area-inset-bottom));
+      background:linear-gradient(to bottom, rgba(255,255,255,.72), #fff 28%);
+    }
+
+    .action{
+      border:0;
+      border-radius:15px;
+      padding:13px 12px;
+      cursor:pointer;
+      font-weight:800;
+    }
+
+    .action.secondary{
+      background:#f7eef2;
+      color:#77656f;
+    }
+
+    .action.primary{
+      background:var(--pink);
+      color:white;
+      box-shadow:0 7px 18px rgba(216,95,146,.22);
+    }
+
+    @keyframes pop{
+      from{transform:scale(.4) rotate(-8deg);opacity:.2}
+      to{transform:scale(1) rotate(-8deg);opacity:1}
+    }
+
+    @keyframes sheetIn{
+      from{transform:translateY(24px);opacity:.5}
+      to{transform:translateY(0);opacity:1}
+    }
+
+    @media (min-width:760px){
+      .app{width:min(100%,1120px);padding-inline:24px}
+      .months{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .hero{position:relative;background:transparent;backdrop-filter:none}
+      .charts{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .charts-title,.charts-subtitle{grid-column:1/-1}
+      .modal{align-items:center}
+      .sheet{border-radius:26px}
+    }
+
+    @media (min-width:1100px){
+      .months{grid-template-columns:repeat(3,minmax(0,1fr))}
+    }
+
+    @media (prefers-reduced-motion:reduce){
+      *{scroll-behavior:auto !important;animation:none !important;transition:none !important}
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <h1>Занятия с Натальей Попович</h1>
+      <p class="subtitle">
+        Нажми на дату, чтобы поставить розовую галочку. Маленькая точка в нижнем левом углу открывает заметку и самочувствие.
+      </p>
+
+      <section class="progress" aria-label="Прогресс">
+        <div class="stats">
+          <div class="stat">
+            <span class="stat-value" id="completedFraction">0 / 153</span>
+            <span class="stat-label">выполнено</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value" id="daysLeft">153</span>
+            <span class="stat-label">дней осталось</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value" id="successPercent">0%</span>
+            <span class="stat-label">успех</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value" id="latestWeight">—</span>
+            <span class="stat-label">вес, кг</span>
+          </div>
+        </div>
+        <div class="progress-track" aria-hidden="true">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <div class="sync-status busy" id="syncStatus" role="status" aria-live="polite">
+          <span class="sync-dot" aria-hidden="true"></span>
+          <span id="syncStatusText">Подключаю облачную синхронизацию…</span>
+        </div>
+      </section>
+    </header>
+
+    <section class="months" id="months"></section>
+
+    <section class="charts" aria-labelledby="chartsTitle">
+      <h2 class="charts-title" id="chartsTitle">Самочувствие</h2>
+      <p class="charts-subtitle">Графики строятся по записям за дни: самочувствие, вес и боль в пояснице.</p>
+
+      <article class="chart-card">
+        <div class="chart-head">
+          <h3>Эмоциональное состояние</h3>
+          <span class="chart-average" id="emotionalAverage">нет данных</span>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="emotionalChart" aria-label="График эмоционального состояния"></canvas>
+          <div class="chart-empty" id="emotionalEmpty">Добавь оценки в календаре — здесь появится динамика.</div>
+        </div>
+      </article>
+
+      <article class="chart-card">
+        <div class="chart-head">
+          <h3>Физическое состояние</h3>
+          <span class="chart-average" id="physicalAverage">нет данных</span>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="physicalChart" aria-label="График физического состояния"></canvas>
+          <div class="chart-empty" id="physicalEmpty">Добавь оценки в календаре — здесь появится динамика.</div>
+        </div>
+      </article>
+
+      <article class="chart-card">
+        <div class="chart-head">
+          <h3>Вес</h3>
+          <span class="chart-average" id="weightAverage">нет данных</span>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="weightChart" aria-label="График веса"></canvas>
+          <div class="chart-empty" id="weightEmpty">Добавь вес в поп-апе дня — здесь появится динамика.</div>
+        </div>
+      </article>
+
+      <article class="chart-card">
+        <div class="chart-head">
+          <h3>Боль в пояснице</h3>
+          <span class="chart-average" id="painAverage">нет данных</span>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="painChart" aria-label="График боли в пояснице"></canvas>
+          <div class="chart-empty" id="painEmpty">Оцени боль по шкале 1–10 — здесь появится динамика.</div>
+        </div>
+      </article>
+    </section>
+
+    <div class="reset-wrap">
+      <button class="reset" id="resetBtn" type="button">Сбросить только тренировки</button>
+    </div>
+
+    <p class="footer-note">
+      Данные сохраняются на устройстве и синхронизируются через общую облачную базу Supabase.
+    </p>
+  </main>
+
+  <div class="modal" id="wellbeingModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <section class="sheet">
+      <div class="sheet-grab" aria-hidden="true"></div>
+
+      <div class="sheet-head">
+        <div>
+          <h2 id="modalTitle">Самочувствие</h2>
+          <p class="sheet-date" id="modalDate"></p>
+        </div>
+        <button class="close-btn" id="closeModalBtn" type="button" aria-label="Закрыть">×</button>
+      </div>
+
+      <label class="field-label" for="healthComment">Комментарий о самочувствии и здоровье</label>
+      <textarea id="healthComment" placeholder="Например: хорошо спала, немного устала, болит спина, много энергии…"></textarea>
+
+      <label class="field-label" for="weightInput">Вес</label>
+      <div class="weight-input-wrap">
+        <input class="weight-input" id="weightInput" type="number" inputmode="decimal" min="48" max="57" step="0.01" placeholder="Например, 52.4">
+        <span class="weight-unit">кг</span>
+      </div>
+      <p class="input-hint">Диапазон графика: 48–57 кг.</p>
+
+      <div class="mood-section">
+        <p class="mood-title">Эмоциональное самочувствие</p>
+        <div class="mood-row" id="emotionalMoodRow"></div>
+      </div>
+
+      <div class="mood-section">
+        <p class="mood-title">Физическое самочувствие</p>
+        <div class="mood-row" id="physicalMoodRow"></div>
+      </div>
+
+      <div class="mood-section">
+        <p class="mood-title">Шкала боли поясницы за весь день по ощущению</p>
+        <div class="pain-row" id="painRow"></div>
+        <p class="input-hint">1 — минимальная боль, 10 — максимальная.</p>
+      </div>
+
+      <div class="sheet-actions">
+        <button class="action secondary" id="cancelModalBtn" type="button">Отмена</button>
+        <button class="action primary" id="saveWellbeingBtn" type="button">Сохранить</button>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const monthsConfig = [
+      { year: 2026, month: 7, name: "август", short: "авг" },
+      { year: 2026, month: 8, name: "сентябрь", short: "сен" },
+      { year: 2026, month: 9, name: "октябрь", short: "окт" },
+      { year: 2026, month: 10, name: "ноябрь", short: "ноя" },
+      { year: 2026, month: 11, name: "декабрь", short: "дек" }
+    ];
+
+    const moods = [
+      { value: 5, faceType: "big-smile", label: "Отлично", color: "#43a86b" },
+      { value: 4, faceType: "smile", label: "Хорошо", color: "#83b95d" },
+      { value: 3, faceType: "neutral", label: "Средне", color: "#e59b35" },
+      { value: 2, faceType: "sad", label: "Не очень", color: "#df775f" },
+      { value: 1, faceType: "very-sad", label: "Плохо", color: "#d65353" }
+    ];
+
+    const storageKey = "natalia-popovich-tracker-2026";
+    const wellbeingKey = "natalia-popovich-wellbeing-2026";
+    const dirtyKey = "natalia-popovich-cloud-dirty-2026";
+
+    const SUPABASE_URL = "https://jzftgvhzckbrqxhfsuqb.supabase.co";
+    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_JmMLrEsDrJX8JP7FSIMNSw_ST_g659x";
+    const CLOUD_TABLE = "tracker_days";
+
+    const saved = new Set(JSON.parse(localStorage.getItem(storageKey) || "[]"));
+    const wellbeing = JSON.parse(localStorage.getItem(wellbeingKey) || "{}");
+    const dirtyDates = new Set(JSON.parse(localStorage.getItem(dirtyKey) || "[]"));
+
+    const weekdays = ["пн","вт","ср","чт","пт","сб","вс"];
+    const monthsRoot = document.getElementById("months");
+    const completedFraction = document.getElementById("completedFraction");
+    const daysLeft = document.getElementById("daysLeft");
+    const successPercent = document.getElementById("successPercent");
+    const latestWeight = document.getElementById("latestWeight");
+    const progressBar = document.getElementById("progressBar");
+    const syncStatus = document.getElementById("syncStatus");
+    const syncStatusText = document.getElementById("syncStatusText");
+    const resetBtn = document.getElementById("resetBtn");
+
+    const modal = document.getElementById("wellbeingModal");
+    const modalDate = document.getElementById("modalDate");
+    const healthComment = document.getElementById("healthComment");
+    const weightInput = document.getElementById("weightInput");
+    const emotionalMoodRow = document.getElementById("emotionalMoodRow");
+    const physicalMoodRow = document.getElementById("physicalMoodRow");
+    const painRow = document.getElementById("painRow");
+    const closeModalBtn = document.getElementById("closeModalBtn");
+    const cancelModalBtn = document.getElementById("cancelModalBtn");
+    const saveWellbeingBtn = document.getElementById("saveWellbeingBtn");
+
+    let activeDate = null;
+    let draftEmotional = null;
+    let draftPhysical = null;
+    let draftPain = null;
+
+    function isoDate(year, monthIndex, day){
+      const mm = String(monthIndex + 1).padStart(2, "0");
+      const dd = String(day).padStart(2, "0");
+      return `${year}-${mm}-${dd}`;
+    }
+
+    function daysInMonth(year, monthIndex){
+      return new Date(year, monthIndex + 1, 0).getDate();
+    }
+
+    function mondayBasedStart(year, monthIndex){
+      const jsDay = new Date(year, monthIndex, 1).getDay();
+      return (jsDay + 6) % 7;
+    }
+
+    function allTrackerDates(){
+      const dates = [];
+      monthsConfig.forEach(m => {
+        for(let day = 1; day <= daysInMonth(m.year, m.month); day++){
+          dates.push(isoDate(m.year, m.month, day));
+        }
+      });
+      return dates;
+    }
+
+    const trackerDates = allTrackerDates();
+
+    let cloudWriteInProgress = false;
+    let cloudLoadInProgress = false;
+
+    function setSyncStatus(message, state = "busy"){
+      syncStatus.classList.remove("ok","busy","error");
+      syncStatus.classList.add(state);
+      syncStatusText.textContent = message;
+    }
+
+    function persistLocalCache(){
+      localStorage.setItem(storageKey, JSON.stringify([...saved]));
+      localStorage.setItem(wellbeingKey, JSON.stringify(wellbeing));
+    }
+
+    function persistDirtyDates(){
+      localStorage.setItem(dirtyKey, JSON.stringify([...dirtyDates]));
+    }
+
+    function markDirty(dateKey){
+      dirtyDates.add(dateKey);
+      persistDirtyDates();
+      setSyncStatus("Сохраняю изменения…", "busy");
+    }
+
+    function localDayHasData(dateKey){
+      return saved.has(dateKey) || hasWellbeingEntry(dateKey);
+    }
+
+    function cloudRowFromLocal(dateKey){
+      const entry = wellbeing[dateKey] || {};
+      const weightValue = entry.weight === null || entry.weight === undefined || entry.weight === ""
+        ? null
+        : Number(entry.weight);
+
+      return {
+        day: dateKey,
+        training: saved.has(dateKey),
+        note: entry.comment || "",
+        emotional: entry.emotional || null,
+        physical: entry.physical || null,
+        weight: Number.isFinite(weightValue) ? weightValue : null,
+        pain: entry.pain || null,
+        updated_at: new Date().toISOString()
+      };
+    }
+
+    async function cloudFetch(path, options = {}){
+      const headers = {
+        "apikey": SUPABASE_PUBLISHABLE_KEY,
+        ...(options.body ? {"Content-Type":"application/json"} : {}),
+        ...(options.headers || {})
+      };
+
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+        ...options,
+        headers
+      });
+
+      if(!response.ok){
+        let detail = "";
+        try{
+          const body = await response.json();
+          detail = body.message || body.hint || body.details || "";
+        }catch(_){}
+        throw new Error(detail || `Supabase: ${response.status}`);
+      }
+
+      if(response.status === 204) return null;
+      const text = await response.text();
+      return text ? JSON.parse(text) : null;
+    }
+
+    async function flushDirty(){
+      if(cloudWriteInProgress || dirtyDates.size === 0) return true;
+      cloudWriteInProgress = true;
+
+      const dates = [...dirtyDates];
+      const rows = dates.map(cloudRowFromLocal);
+
+      try{
+        await cloudFetch(`${CLOUD_TABLE}?on_conflict=day`, {
+          method:"POST",
+          headers:{
+            "Prefer":"resolution=merge-duplicates,return=minimal"
+          },
+          body:JSON.stringify(rows)
+        });
+
+        dates.forEach(dateKey => dirtyDates.delete(dateKey));
+        persistDirtyDates();
+        setSyncStatus("Синхронизировано", "ok");
+        return true;
+      }catch(error){
+        console.error(error);
+        setSyncStatus("Нет связи с облаком — данные сохранены на телефоне", "error");
+        return false;
+      }finally{
+        cloudWriteInProgress = false;
+      }
+    }
+
+    function refreshCalendarFromState(){
+      document.querySelectorAll(".day-cell[data-date]").forEach(cell => {
+        const dateKey = cell.dataset.date;
+        const done = saved.has(dateKey);
+        cell.classList.toggle("done", done);
+        cell.classList.toggle("has-entry", hasWellbeingEntry(dateKey));
+        const button = cell.querySelector(".day-main");
+        if(button) button.setAttribute("aria-pressed", done ? "true" : "false");
+      });
+      updateProgress();
+      updateMonthCounts();
+      updateEntryIndicators();
+      drawAllCharts();
+    }
+
+    function applyCloudRows(rows){
+      saved.clear();
+      Object.keys(wellbeing).forEach(key => delete wellbeing[key]);
+
+      rows.forEach(row => {
+        const dateKey = String(row.day);
+        if(row.training) saved.add(dateKey);
+
+        const entry = {
+          comment: row.note || "",
+          emotional: row.emotional === null ? null : Number(row.emotional),
+          physical: row.physical === null ? null : Number(row.physical),
+          weight: row.weight === null ? null : Number(row.weight),
+          pain: row.pain === null ? null : Number(row.pain)
+        };
+
+        if(
+          entry.comment ||
+          entry.emotional ||
+          entry.physical ||
+          entry.weight !== null ||
+          entry.pain
+        ){
+          wellbeing[dateKey] = entry;
+        }
+      });
+
+      persistLocalCache();
+      refreshCalendarFromState();
+    }
+
+    async function loadCloud(){
+      if(cloudLoadInProgress || cloudWriteInProgress) return;
+      cloudLoadInProgress = true;
+
+      try{
+        if(dirtyDates.size){
+          const flushed = await flushDirty();
+          if(!flushed) return;
+        }
+
+        const rows = await cloudFetch(
+          `${CLOUD_TABLE}?select=day,training,note,emotional,physical,weight,pain,updated_at&day=gte.2026-08-01&day=lte.2026-12-31&order=day.asc`
+        );
+
+        if(Array.isArray(rows) && rows.length === 0){
+          const localDates = trackerDates.filter(localDayHasData);
+          if(localDates.length){
+            localDates.forEach(markDirty);
+            await flushDirty();
+            setSyncStatus("Данные перенесены в облако", "ok");
+          }else{
+            setSyncStatus("Синхронизировано", "ok");
+          }
+          return;
+        }
+
+        if(Array.isArray(rows)){
+          applyCloudRows(rows);
+          setSyncStatus("Синхронизировано", "ok");
+        }
+      }catch(error){
+        console.error(error);
+        const message = String(error.message || "");
+        if(message.toLowerCase().includes("tracker_days") || message.includes("schema cache")){
+          setSyncStatus("Нужно создать таблицу Supabase", "error");
+        }else{
+          setSyncStatus("Облако недоступно — работаю локально", "error");
+        }
+      }finally{
+        cloudLoadInProgress = false;
+      }
+    }
+
+    function queueCloudSave(dateKey){
+      markDirty(dateKey);
+      void flushDirty();
+    }
+
+
+    function saveTraining(dateKey = null){
+      localStorage.setItem(storageKey, JSON.stringify([...saved]));
+      updateProgress();
+      updateMonthCounts();
+      if(dateKey) queueCloudSave(dateKey);
+    }
+
+    function saveWellbeingData(dateKey = null){
+      localStorage.setItem(wellbeingKey, JSON.stringify(wellbeing));
+      updateEntryIndicators();
+      drawAllCharts();
+      if(dateKey) queueCloudSave(dateKey);
+    }
+
+    function updateProgress(){
+      const totalDays = trackerDates.length;
+      const count = saved.size;
+      const remaining = Math.max(0, totalDays - count);
+      const percent = totalDays ? Math.round((count / totalDays) * 100) : 0;
+
+      completedFraction.textContent = `${count} / ${totalDays}`;
+      daysLeft.textContent = remaining;
+      successPercent.textContent = `${percent}%`;
+      progressBar.style.width = `${Math.min(100, percent)}%`;
+      updateLatestWeight();
+    }
+
+    function updateLatestWeight(){
+      let latest = null;
+      for(let i = trackerDates.length - 1; i >= 0; i--){
+        const entry = wellbeing[trackerDates[i]];
+        const value = entry ? Number(entry.weight) : NaN;
+        if(Number.isFinite(value) && value >= 48 && value <= 57){
+          latest = value;
+          break;
+        }
+      }
+      latestWeight.textContent = latest === null ? "—" : String(latest).replace(".", ",");
+    }
+
+    function updateMonthCounts(){
+      document.querySelectorAll(".month").forEach(section => {
+        const prefix = section.dataset.prefix;
+        const count = [...saved].filter(d => d.startsWith(prefix)).length;
+        const total = Number(section.dataset.total);
+        section.querySelector(".month-count").textContent = `${count} / ${total}`;
+      });
+    }
+
+    function hasWellbeingEntry(dateKey){
+      const entry = wellbeing[dateKey];
+      return !!(entry && (
+        (entry.comment && entry.comment.trim()) ||
+        entry.emotional ||
+        entry.physical ||
+        entry.weight ||
+        entry.pain
+      ));
+    }
+
+    function updateEntryIndicators(){
+      document.querySelectorAll(".day-cell[data-date]").forEach(cell => {
+        cell.classList.toggle("has-entry", hasWellbeingEntry(cell.dataset.date));
+      });
+    }
+
+    function toggleTraining(dateKey, cell){
+      if(saved.has(dateKey)){
+        saved.delete(dateKey);
+        cell.classList.remove("done");
+        cell.querySelector(".day-main").setAttribute("aria-pressed","false");
+      }else{
+        saved.add(dateKey);
+        cell.classList.add("done");
+        cell.querySelector(".day-main").setAttribute("aria-pressed","true");
+      }
+      saveTraining(dateKey);
+    }
+
+    function formatDateRu(dateKey){
+      const [year, month, day] = dateKey.split("-").map(Number);
+      return new Intl.DateTimeFormat("ru-RU", {
+        day:"numeric",
+        month:"long",
+        year:"numeric"
+      }).format(new Date(year, month - 1, day));
+    }
+
+
+    function getFaceSvg(color, faceType){
+      const mouthByType = {
+        "big-smile": '<path d="M 12 24 Q 19 31 26 24" fill="none" stroke="#111" stroke-width="2.4" stroke-linecap="round"/>',
+        "smile": '<path d="M 12 24 Q 19 28 26 24" fill="none" stroke="#111" stroke-width="2.4" stroke-linecap="round"/>',
+        "neutral": '<line x1="12" y1="24" x2="26" y2="24" stroke="#111" stroke-width="2.4" stroke-linecap="round"/>',
+        "sad": '<path d="M 12 27 Q 19 22 26 27" fill="none" stroke="#111" stroke-width="2.4" stroke-linecap="round"/>',
+        "very-sad": '<path d="M 10.5 28 Q 19 18.5 27.5 28" fill="none" stroke="#111" stroke-width="2.6" stroke-linecap="round"/>'
+      };
+
+      return `
+        <svg viewBox="0 0 38 38" aria-hidden="true" focusable="false">
+          <circle cx="19" cy="19" r="18" fill="${color}"></circle>
+          <circle cx="13.2" cy="14.6" r="2.3" fill="#111"></circle>
+          <circle cx="24.8" cy="14.6" r="2.3" fill="#111"></circle>
+          ${mouthByType[faceType] || mouthByType["neutral"]}
+        </svg>
+      `;
+    }
+
+    function buildMoodRow(container, field){
+      container.innerHTML = "";
+      moods.forEach(mood => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "mood-btn";
+        btn.style.setProperty("--mood-color", mood.color);
+        btn.dataset.value = mood.value;
+        btn.innerHTML = `
+          <span class="mood-face" aria-hidden="true">${getFaceSvg(mood.color, mood.faceType)}</span>
+          <span class="mood-name">${mood.label}</span>
+        `;
+        btn.setAttribute("aria-label", mood.label);
+        btn.setAttribute("aria-pressed","false");
+
+        btn.addEventListener("click", () => {
+          if(field === "emotional") draftEmotional = mood.value;
+          if(field === "physical") draftPhysical = mood.value;
+          updateMoodSelections();
+        });
+
+        container.appendChild(btn);
+      });
+    }
+
+    function buildPainRow(){
+      painRow.innerHTML = "";
+      for(let value = 1; value <= 10; value++){
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "pain-btn";
+        btn.dataset.value = value;
+        btn.textContent = value;
+        btn.setAttribute("aria-label", `Боль ${value} из 10`);
+        btn.setAttribute("aria-pressed", "false");
+        btn.addEventListener("click", () => {
+          draftPain = value;
+          updatePainSelection();
+        });
+        painRow.appendChild(btn);
+      }
+    }
+
+    function updatePainSelection(){
+      painRow.querySelectorAll(".pain-btn").forEach(btn => {
+        const selected = Number(btn.dataset.value) === Number(draftPain);
+        btn.classList.toggle("selected", selected);
+        btn.setAttribute("aria-pressed", selected ? "true" : "false");
+      });
+    }
+
+    function updateMoodSelections(){
+      emotionalMoodRow.querySelectorAll(".mood-btn").forEach(btn => {
+        const selected = Number(btn.dataset.value) === Number(draftEmotional);
+        btn.classList.toggle("selected", selected);
+        btn.setAttribute("aria-pressed", selected ? "true" : "false");
+      });
+
+      physicalMoodRow.querySelectorAll(".mood-btn").forEach(btn => {
+        const selected = Number(btn.dataset.value) === Number(draftPhysical);
+        btn.classList.toggle("selected", selected);
+        btn.setAttribute("aria-pressed", selected ? "true" : "false");
+      });
+    }
+
+    function openWellbeing(dateKey){
+      activeDate = dateKey;
+      const entry = wellbeing[dateKey] || {};
+      healthComment.value = entry.comment || "";
+      weightInput.value = Number.isFinite(Number(entry.weight)) ? String(entry.weight) : "";
+      draftEmotional = entry.emotional || null;
+      draftPhysical = entry.physical || null;
+      draftPain = entry.pain || null;
+      modalDate.textContent = formatDateRu(dateKey);
+      updateMoodSelections();
+      updatePainSelection();
+
+      modal.classList.add("open");
+      document.body.classList.add("modal-open");
+      closeModalBtn.focus();
+    }
+
+    function closeWellbeing(){
+      modal.classList.remove("open");
+      document.body.classList.remove("modal-open");
+      activeDate = null;
+    }
+
+    function commitWellbeing(){
+      if(!activeDate) return;
+
+      const comment = healthComment.value.trim();
+      const rawWeight = weightInput.value.trim().replace(",", ".");
+      const weight = rawWeight === "" ? null : Number(rawWeight);
+
+      if(weight !== null && (!Number.isFinite(weight) || weight < 48 || weight > 57)){
+        alert("Вес должен быть в диапазоне от 48 до 57 кг.");
+        weightInput.focus();
+        return;
+      }
+
+      if(!comment && !draftEmotional && !draftPhysical && weight === null && !draftPain){
+        delete wellbeing[activeDate];
+      }else{
+        wellbeing[activeDate] = {
+          comment,
+          emotional: draftEmotional,
+          physical: draftPhysical,
+          weight: weight === null ? null : weight,
+          pain: draftPain
+        };
+      }
+
+      saveWellbeingData(activeDate);
+      updateLatestWeight();
+      closeWellbeing();
+    }
+
+    function renderCalendar(){
+      const now = new Date();
+      const todayIso = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
+
+      monthsConfig.forEach(m => {
+        const total = daysInMonth(m.year, m.month);
+        const section = document.createElement("section");
+        section.className = "month";
+        section.dataset.prefix = `${m.year}-${String(m.month+1).padStart(2,"0")}`;
+        section.dataset.total = total;
+
+        const head = document.createElement("div");
+        head.className = "month-head";
+        head.innerHTML = `
+          <h2 class="month-title">${m.name} ${m.year}</h2>
+          <span class="month-count">0 / ${total}</span>
+        `;
+        section.appendChild(head);
+
+        const weekdayRow = document.createElement("div");
+        weekdayRow.className = "weekdays";
+        weekdays.forEach(w => {
+          const el = document.createElement("div");
+          el.className = "weekday";
+          el.textContent = w;
+          weekdayRow.appendChild(el);
+        });
+        section.appendChild(weekdayRow);
+
+        const daysGrid = document.createElement("div");
+        daysGrid.className = "days";
+
+        const blanks = mondayBasedStart(m.year, m.month);
+        for(let i=0;i<blanks;i++){
+          const empty = document.createElement("div");
+          empty.className = "day-cell empty";
+          daysGrid.appendChild(empty);
+        }
+
+        for(let d=1; d<=total; d++){
+          const dateKey = isoDate(m.year, m.month, d);
+          const cell = document.createElement("div");
+          cell.className = "day-cell";
+          cell.dataset.date = dateKey;
+
+          if(saved.has(dateKey)) cell.classList.add("done");
+          if(dateKey === todayIso) cell.classList.add("today");
+          if(hasWellbeingEntry(dateKey)) cell.classList.add("has-entry");
+
+          const mainBtn = document.createElement("button");
+          mainBtn.type = "button";
+          mainBtn.className = "day-main";
+          mainBtn.innerHTML = `<span class="day-number">${d}</span>`;
+          mainBtn.setAttribute("aria-label", `${d} ${m.name} ${m.year}: отметить тренировку`);
+          mainBtn.setAttribute("aria-pressed", saved.has(dateKey) ? "true" : "false");
+          mainBtn.addEventListener("click", () => toggleTraining(dateKey, cell));
+
+          const check = document.createElement("span");
+          check.className = "check";
+          check.textContent = "✓";
+          check.setAttribute("aria-hidden","true");
+
+          const noteBtn = document.createElement("button");
+          noteBtn.type = "button";
+          noteBtn.className = "note-btn";
+          noteBtn.textContent = "";
+          noteBtn.setAttribute("aria-label", `${d} ${m.name}: комментарий и самочувствие`);
+          noteBtn.addEventListener("click", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            openWellbeing(dateKey);
+          });
+
+          cell.append(mainBtn, check, noteBtn);
+          daysGrid.appendChild(cell);
+        }
+
+        section.appendChild(daysGrid);
+        monthsRoot.appendChild(section);
+      });
+
+      updateProgress();
+      updateMonthCounts();
+    }
+
+    function getMoodColor(value){
+      const mood = moods.find(m => m.value === Number(value));
+      return mood ? mood.color : "#d7cbd0";
+    }
+
+    function drawChart(canvasId, field, lineColor, averageId, emptyId){
+      const canvas = document.getElementById(canvasId);
+      const wrap = canvas.parentElement;
+      const empty = document.getElementById(emptyId);
+      const average = document.getElementById(averageId);
+      const rect = wrap.getBoundingClientRect();
+      const cssW = Math.max(280, Math.floor(rect.width));
+      const cssH = Math.max(180, Math.floor(rect.height));
+      const dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 2));
+
+      canvas.width = Math.round(cssW * dpr);
+      canvas.height = Math.round(cssH * dpr);
+
+      const ctx = canvas.getContext("2d");
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+      ctx.clearRect(0,0,cssW,cssH);
+
+      const left = 30;
+      const right = 8;
+      const top = 14;
+      const bottom = 28;
+      const plotW = cssW - left - right;
+      const plotH = cssH - top - bottom;
+
+      const points = trackerDates
+        .map((date, index) => ({
+          date,
+          index,
+          value: wellbeing[date] ? Number(wellbeing[date][field]) : 0
+        }))
+        .filter(p => p.value >= 1 && p.value <= 5);
+
+      empty.style.display = points.length ? "none" : "block";
+
+      if(points.length){
+        const avg = points.reduce((sum,p) => sum + p.value, 0) / points.length;
+        average.textContent = `среднее ${avg.toFixed(1)} / 5`;
+      }else{
+        average.textContent = "нет данных";
+      }
+
+      // Grid & y labels.
+      ctx.font = "10px Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
+      ctx.textAlign = "right";
+      ctx.textBaseline = "middle";
+
+      for(let value=1; value<=5; value++){
+        const y = top + plotH - ((value - 1) / 4) * plotH;
+        ctx.strokeStyle = "#f1e6eb";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(left, y);
+        ctx.lineTo(cssW - right, y);
+        ctx.stroke();
+
+        ctx.fillStyle = value === 5 ? "#43a86b" : value === 3 ? "#e59b35" : value === 1 ? "#d65353" : "#9b8c94";
+        ctx.fillText(String(value), left - 8, y);
+      }
+
+      // Month separators & labels.
+      ctx.textAlign = "left";
+      ctx.textBaseline = "alphabetic";
+      monthsConfig.forEach(m => {
+        const key = isoDate(m.year, m.month, 1);
+        const idx = trackerDates.indexOf(key);
+        const x = left + (idx / (trackerDates.length - 1)) * plotW;
+
+        ctx.strokeStyle = "#eadde3";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(x, top);
+        ctx.lineTo(x, top + plotH);
+        ctx.stroke();
+
+        ctx.fillStyle = "#8a7c86";
+        ctx.font = "9px Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
+        ctx.fillText(m.short, Math.min(x + 3, cssW - 24), cssH - 8);
+      });
+
+      if(!points.length) return;
+
+      const xy = points.map(p => ({
+        ...p,
+        x: left + (p.index / (trackerDates.length - 1)) * plotW,
+        y: top + plotH - ((p.value - 1) / 4) * plotH
+      }));
+
+      // Trend line between recorded values.
+      ctx.strokeStyle = lineColor;
+      ctx.lineWidth = 2.25;
+      ctx.lineJoin = "round";
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      xy.forEach((p,i) => {
+        if(i === 0) ctx.moveTo(p.x,p.y);
+        else ctx.lineTo(p.x,p.y);
+      });
+      ctx.stroke();
+
+      // Colored points based on score.
+      xy.forEach(p => {
+        ctx.beginPath();
+        ctx.fillStyle = getMoodColor(p.value);
+        ctx.arc(p.x,p.y,3.4,0,Math.PI*2);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 1.3;
+        ctx.arc(p.x,p.y,3.4,0,Math.PI*2);
+        ctx.stroke();
+      });
+    }
+
+    function drawNumericChart(canvasId, field, minValue, maxValue, lineColor, averageId, emptyId, suffix){
+      const canvas = document.getElementById(canvasId);
+      const wrap = canvas.parentElement;
+      const empty = document.getElementById(emptyId);
+      const average = document.getElementById(averageId);
+      const rect = wrap.getBoundingClientRect();
+      const cssW = Math.max(280, Math.floor(rect.width));
+      const cssH = Math.max(180, Math.floor(rect.height));
+      const dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 2));
+
+      canvas.width = Math.round(cssW * dpr);
+      canvas.height = Math.round(cssH * dpr);
+
+      const ctx = canvas.getContext("2d");
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+      ctx.clearRect(0,0,cssW,cssH);
+
+      const left = 34;
+      const right = 8;
+      const top = 14;
+      const bottom = 28;
+      const plotW = cssW - left - right;
+      const plotH = cssH - top - bottom;
+
+      const points = trackerDates
+        .map((date, index) => {
+          const entry = wellbeing[date];
+          const value = entry ? Number(entry[field]) : NaN;
+          return { date, index, value };
+        })
+        .filter(p => Number.isFinite(p.value) && p.value >= minValue && p.value <= maxValue);
+
+      empty.style.display = points.length ? "none" : "block";
+
+      if(points.length){
+        const avg = points.reduce((sum,p) => sum + p.value, 0) / points.length;
+        const digits = field === "weight" ? 1 : 1;
+        average.textContent = `среднее ${avg.toFixed(digits)}${suffix}`;
+      }else{
+        average.textContent = "нет данных";
+      }
+
+      ctx.font = "10px Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
+      ctx.textAlign = "right";
+      ctx.textBaseline = "middle";
+
+      const tickCount = field === "weight" ? 4 : 5;
+      for(let i = 0; i <= tickCount; i++){
+        const value = minValue + ((maxValue - minValue) * i / tickCount);
+        const y = top + plotH - (i / tickCount) * plotH;
+
+        ctx.strokeStyle = "#f1e6eb";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(left, y);
+        ctx.lineTo(cssW - right, y);
+        ctx.stroke();
+
+        ctx.fillStyle = "#9b8c94";
+        const label = field === "weight" ? value.toFixed(1).replace(".0","") : String(Math.round(value));
+        ctx.fillText(label, left - 7, y);
+      }
+
+      ctx.textAlign = "left";
+      ctx.textBaseline = "alphabetic";
+      monthsConfig.forEach(m => {
+        const key = isoDate(m.year, m.month, 1);
+        const idx = trackerDates.indexOf(key);
+        const x = left + (idx / (trackerDates.length - 1)) * plotW;
+
+        ctx.strokeStyle = "#eadde3";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(x, top);
+        ctx.lineTo(x, top + plotH);
+        ctx.stroke();
+
+        ctx.fillStyle = "#8a7c86";
+        ctx.font = "9px Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
+        ctx.fillText(m.short, Math.min(x + 3, cssW - 24), cssH - 8);
+      });
+
+      if(!points.length) return;
+
+      const xy = points.map(p => ({
+        ...p,
+        x: left + (p.index / (trackerDates.length - 1)) * plotW,
+        y: top + plotH - ((p.value - minValue) / (maxValue - minValue)) * plotH
+      }));
+
+      ctx.strokeStyle = lineColor;
+      ctx.lineWidth = 2.25;
+      ctx.lineJoin = "round";
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      xy.forEach((p,i) => {
+        if(i === 0) ctx.moveTo(p.x,p.y);
+        else ctx.lineTo(p.x,p.y);
+      });
+      ctx.stroke();
+
+      xy.forEach(p => {
+        ctx.beginPath();
+        ctx.fillStyle = lineColor;
+        ctx.arc(p.x,p.y,3.4,0,Math.PI*2);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 1.3;
+        ctx.arc(p.x,p.y,3.4,0,Math.PI*2);
+        ctx.stroke();
+      });
+    }
+
+    function drawAllCharts(){
+      requestAnimationFrame(() => {
+        drawChart("emotionalChart", "emotional", "#c06fa0", "emotionalAverage", "emotionalEmpty");
+        drawChart("physicalChart", "physical", "#73969a", "physicalAverage", "physicalEmpty");
+        drawNumericChart("weightChart", "weight", 48, 57, "#8b6f9d", "weightAverage", "weightEmpty", " кг");
+        drawNumericChart("painChart", "pain", 1, 10, "#c46d6d", "painAverage", "painEmpty", " / 10");
+      });
+    }
+
+    buildMoodRow(emotionalMoodRow, "emotional");
+    buildMoodRow(physicalMoodRow, "physical");
+    buildPainRow();
+    renderCalendar();
+    drawAllCharts();
+    void loadCloud();
+
+    setInterval(() => {
+      if(document.visibilityState === "visible") void loadCloud();
+    }, 10000);
+
+    document.addEventListener("visibilitychange", () => {
+      if(document.visibilityState === "visible") void loadCloud();
+    });
+
+    saveWellbeingBtn.addEventListener("click", commitWellbeing);
+    closeModalBtn.addEventListener("click", closeWellbeing);
+    cancelModalBtn.addEventListener("click", closeWellbeing);
+
+    modal.addEventListener("click", (event) => {
+      if(event.target === modal) closeWellbeing();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if(event.key === "Escape" && modal.classList.contains("open")) closeWellbeing();
+    });
+
+    resetBtn.addEventListener("click", () => {
+      const ok = confirm("Удалить все розовые галочки тренировок? Комментарии и самочувствие останутся.");
+      if(!ok) return;
+
+      const changedDates = [...saved];
+      saved.clear();
+      localStorage.setItem(storageKey, JSON.stringify([]));
+
+      document.querySelectorAll(".day-cell.done").forEach(cell => {
+        cell.classList.remove("done");
+        cell.querySelector(".day-main").setAttribute("aria-pressed","false");
+      });
+
+      updateProgress();
+      updateMonthCounts();
+
+      changedDates.forEach(markDirty);
+      void flushDirty();
+    });
+
+    let resizeTimer;
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(drawAllCharts, 120);
+    });
+  </script>
+</body>
+</html>
